@@ -1,0 +1,10 @@
+#this ansible playbook is realated to terraform-expense-infra-dev-60-backend-configuration, here we must need to pass 2 variables
+#Component(backend) and environment(dev) from command line.
+
+- name: "configuration of {{ component }} server"
+  hosts: all
+  become: yes
+  vars_files: 
+  - variables-{{ environment }}.yml
+  roles:
+  - "{{ component }}"

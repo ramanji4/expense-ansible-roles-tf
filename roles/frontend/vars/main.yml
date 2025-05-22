@@ -1,0 +1,3 @@
+Backend_host: backend.ram4india.space
+app_location: /usr/share/nginx/html
+component: frontend

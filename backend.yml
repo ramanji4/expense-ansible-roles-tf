@@ -1,0 +1,7 @@
+- name: configuration of backend
+  hosts: backend
+  become: yes
+  vars_files:
+  - /var/expense/credentials.yml 
+  roles:
+  - backend

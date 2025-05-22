@@ -1,0 +1,8 @@
+subnet_id: "subnet-0fa08be31f16ae596"
+sg_id: "sg-0fe8fd8bdb17de145"
+ami_id: "ami-09c813fb71547fc4f"
+instances:
+  - mysql
+  - backend
+  - frontend
+zone: "ram4india.space"

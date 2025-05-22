@@ -1,0 +1,60 @@
+- name: disabling default nodejs
+  ansible.builtin.command: dnf module disable nodejs -y
+
+- name: enabling nodejs:20
+  ansible.builtin.command: dnf module enable nodejs:20 -y
+
+- name: installing nodejs
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+  - nodejs
+  - mysql
+
+- name: installing packages
+  ansible.builtin.pip:
+    name:
+    - PyMySQL
+    - cryptography
+    executable: pip3.9
+
+- name: creating expense user
+  ansible.builtin.user:
+    name: expense
+
+- name: running common tasks by importing roles
+  tags:
+  - deployment
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: app-pre-req
+
+- name: installing dependencies
+  tags:
+  - deployment
+  ansible.builtin.command: npm install
+  args:
+    chdir: /app
+
+- name: copying backend service file
+  ansible.builtin.template:
+    src: backend.service.j2
+    dest: /etc/systemd/system/backend.service
+
+- name: import mysql data
+  community.mysql.mysql_db:
+    login_user: root
+    login_host: "{{ login_host }}"
+    login_password: "{{ mysql_root_password }}"
+    target: /app/schema/backend.sql
+    name: all
+    state: import
+
+- name: restarting backend service
+  tags:
+  - deployment
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    state: restarted
+    name: backend

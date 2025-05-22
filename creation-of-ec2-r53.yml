@@ -1,0 +1,5 @@
+- name: creating ec2 instances and r53 records.
+  hosts: local
+  connection: local
+  roles:
+  - ec2-and-r53

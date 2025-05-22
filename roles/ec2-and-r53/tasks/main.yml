@@ -1,0 +1,44 @@
+- name: installing boto3 and botocore
+  ansible.builtin.pip:
+    name:
+    - boto3
+    - botocore
+    executable: pip3.9
+- name: creating ec2-instances
+  amazon.aws.ec2_instance:
+    name: "{{ item }}"
+    vpc_subnet_id: "{{ subnet_id }}"
+    instance_type: "t3.micro"
+    security_group: "{{ sg_id }}"
+    image_id: "{{ ami_id }}"
+  loop: "{{ instances }}"
+  register: ec2_instances
+
+- name: printing output of instances
+  ansible.builtin.debug:
+    msg: "{{ ec2_instances }}"
+
+- name: creating private IP r53 records
+  amazon.aws.route53:
+    state: present
+    zone: "{{ zone }}"
+    record: "{{ item.item }}.{{ zone }}"  #mysql.ram4india.space 
+    ttl: 1
+    type: A
+    value: "{{ item.instances[0].private_ip_address }}"
+    wait: true
+    overwrite: true
+  loop: "{{ ec2_instances.results }}"
+
+- name: creating r53 records for frontend
+  amazon.aws.route53:
+    state: present
+    zone: "{{ zone }}"
+    record: "{{ zone }}"
+    type: A
+    ttl: 1
+    value: "{{ item.instances[0].public_ip_address }}"
+    wait: true
+    overwrite: true
+  loop: "{{ ec2_instances.results }}"
+  when: item.item == "frontend"

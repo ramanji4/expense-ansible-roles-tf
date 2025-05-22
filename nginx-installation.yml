@@ -1,0 +1,15 @@
+- name: nginx installation and run
+  hosts: nginx
+  become: yes
+  serial: 3  #play level server operation when configuring multiple servers (#forks=3 is task level server operation) 
+  tasks:
+  - name: nginx installation
+    ansible.builtin.package:
+      name: nginx
+      state: present
+
+  - name: nginx run
+    ansible.builtin.service:
+      name: nginx
+      state: started
+      enabled: yes
